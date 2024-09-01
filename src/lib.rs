@@ -33,7 +33,7 @@ impl<const CAP: usize> SmoothBuffer<CAP> {
         }
     }
 
-    // Fast! Sum is always kept up to date on push. No need iterate.
+    /// Fast! Sum is always kept up to date on push. No need iterate.
     pub fn average(&self) -> f32 {
         if self.filled_len > 0 {
             return self.sum.unwrap_or(0.0) / self.filled_len as f32;
@@ -105,6 +105,9 @@ impl<const CAP: usize> SmoothBuffer<CAP> {
         self.data[0..self.filled_len].iter_mut()
     }
 
+    /// Will perform super fast hard-coded weighted average with up to 5 elements.
+    /// Above that will use a sine-based formula, which is slower.
+    /// TODO: Expand number of hard coded weights.
     pub fn smooth(&self) -> f32 {
         let len = self.filled_len;
         let mut sum = 0.0;
