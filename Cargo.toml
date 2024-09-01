@@ -1,11 +1,12 @@
 [package]
 name = "smooth-buffer"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "A simple ring buffer that can average values without iterating"
 license = "MIT"
 repository = "https://github.com/chipmusic/smooth_buffer"
 documentation = "https://docs.rs/smooth_buffer/latest/smoooth_buffer/"
+categories = ["no-std"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
