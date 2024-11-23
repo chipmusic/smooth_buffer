@@ -2,11 +2,11 @@
 #![no_std]
 use core::slice::Iter;
 
-mod float;
-pub use float::Float;
+mod num;
+pub use num::{Num, Float};
 
 /// Simple fixed size ringbuffer with fast averaging.
-pub struct SmoothBuffer<const CAP: usize, T: Float> {
+pub struct SmoothBuffer<const CAP: usize, T: Num> {
     data: [T; CAP],
     head: usize,
     sum: Option<T>,
@@ -15,13 +15,13 @@ pub struct SmoothBuffer<const CAP: usize, T: Float> {
     filled_len: usize,
 }
 
-impl<const CAP: usize, T: Float> Default for SmoothBuffer<CAP, T> {
+impl<const CAP: usize, T: Num> Default for SmoothBuffer<CAP, T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<const CAP: usize, T: Float> SmoothBuffer<CAP, T> {
+impl<const CAP: usize, T: Num> SmoothBuffer<CAP, T> {
     /// Creates a new, empty buffer.
     pub fn new() -> Self {
         SmoothBuffer {
@@ -129,7 +129,9 @@ impl<const CAP: usize, T: Float> SmoothBuffer<CAP, T> {
     pub fn iter(&self) -> Iter<T> {
         self.data[0..self.filled_len].iter()
     }
+}
 
+impl<const CAP: usize, T: Float> SmoothBuffer<CAP, T> {
     /// Gaussian smoothing. Much slower than a simple average, will actually
     /// iterate through all values and return a weighted sum.
     pub fn gaussian_filter(&self) -> T {
@@ -258,8 +260,8 @@ mod tests {
             // println!("testing {}", x);
             let buf = SmoothBuffer::<10, f64>::pre_filled(x);
             assert!(buf.len() == 10);
-            assert!(buf.gaussian_filter() - x < MARGIN);
-            assert!(buf.average() - x < MARGIN);
+            assert!((buf.gaussian_filter() - x).abs() < MARGIN);
+            assert!((buf.average() - x).abs() < MARGIN);
         }
 
         for n in 0 ..= 10 {
