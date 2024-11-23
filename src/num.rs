@@ -1,10 +1,10 @@
 use core::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
-use libm::{exp, expf};
 
 /// A signed Number type. Currently implemented for f32, f64, i8, i16, i32 and i64.
 pub trait Num:
     Default
     + PartialEq
+    + PartialOrd
     + Copy
     + AddAssign
     + MulAssign
@@ -73,12 +73,15 @@ impl_num!(i32);
 impl_num!(i64);
 
 pub trait Float: Num {
+    fn floor(a: Self) -> Self;
+    fn ceil(a: Self) -> Self;
+    fn round(a: Self) -> Self;
     fn exp(a: Self) -> Self;
 }
 
 /// Takes in the type and the necessary exponential function for that type.
 macro_rules! impl_float {
-    ($t:ty, $exp_func:ident) => {
+    ($t:ty, $exp_fn:ident, $floor_fn:ident, $ceil_fn:ident, $round_fn:ident) => {
         impl Num for $t {
             #[inline(always)]
             fn zero() -> Self {
@@ -118,12 +121,30 @@ macro_rules! impl_float {
 
         impl Float for $t {
             #[inline(always)]
+            fn floor(a: Self) -> Self {
+                $floor_fn(a)
+            }
+
+            #[inline(always)]
+            fn ceil(a: Self) -> Self {
+                $ceil_fn(a)
+            }
+
+            #[inline(always)]
+            fn round(a: Self) -> Self {
+                $round_fn(a)
+            }
+
+
+            #[inline(always)]
             fn exp(a: Self) -> Self {
-                $exp_func(a)
+                $exp_fn(a)
             }
         }
     };
 }
 
-impl_float!(f32, expf);
-impl_float!(f64, exp);
+use libm::{exp, expf, floor, floorf, ceil, ceilf, round, roundf};
+
+impl_float!(f32, expf, floorf, ceilf, roundf);
+impl_float!(f64, exp, floor, ceil, round);
